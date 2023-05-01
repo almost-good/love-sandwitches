@@ -8,7 +8,7 @@ SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/drive"
-    ]
+]
 
 CREDS = Credentials.from_service_account_file('creds.json')
 SCOPED_CREDS = CREDS.with_scopes(SCOPE)
@@ -52,8 +52,24 @@ def get_sales_data():
         if validate_data(sales_data):
             print("Data is valid!")
             break
-    
+
     return sales_data
+
+
+def get_stock_values(data):
+    """
+    Get stock values.
+    Create a dictionary of heading and heading data pairs.
+    """
+
+    stock = SHEET.worksheet("stock")
+    headings = stock.row_values(1)
+
+    stock_values = {}
+    for heading, heading_data in zip(headings, data):
+        stock_values.update({heading: heading_data})
+
+    return stock_values
 
 
 def validate_data(values):
@@ -126,8 +142,7 @@ def calculate_surplus_data(sales_row):
     # pprint(stock)
     stock_row = stock[-1]
     # print(stock_row)
-    
-    
+
     # print(f"stock row: {stock_row}")
     # print(f"sales row: {sales_row}")
 
@@ -166,7 +181,7 @@ def calculate_stock_data(data):
     """
 
     print("Calculating stock data...\n")
-    
+
     new_stock_data = []
     for column in data:
         int_column = [int(num) for num in column]
@@ -183,7 +198,7 @@ def main():
     """
     Run all program functions
     """
-    #get_sales_data()
+    # get_sales_data()
     # After this check if the data is valid
 
     data = get_sales_data()
@@ -199,6 +214,9 @@ def main():
     stock_data = calculate_stock_data(sales_columns)
     # print(stock_data)
     update_worksheet(stock_data, "stock")
+    stock_values = get_stock_values(stock_data)
+    print("Make the following numbers of sandwiches for next market:\n")
+    print(stock_values)
 
 
 print("Welcome to Love Sandwiches Data Automation")
